@@ -1,0 +1,9 @@
+resource_type,utc_date,pages,returned_entries
+Patient,2026-11-11,1,145
+Encounter,2026-11-11,1,114
+Observation,2026-11-11,19,3664
+Condition,2026-11-11,1,111
+Patient,2026-11-12,2,211
+Encounter,2026-11-12,2,321
+Observation,2026-11-12,13,2412
+Condition,2026-11-12,2,202

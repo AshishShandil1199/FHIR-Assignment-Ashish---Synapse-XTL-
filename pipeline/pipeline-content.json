@@ -1,0 +1,409 @@
+{
+  "properties": {
+    "parameters": {
+      "start_date": {
+        "type": "String",
+        "defaultValue": ""
+      },
+      "end_date_exclusive": {
+        "type": "String",
+        "defaultValue": ""
+      },
+      "backfill_days": {
+        "type": "String",
+        "defaultValue": "2"
+      },
+      "api_base": {
+        "type": "String",
+        "defaultValue": "https://hapi.fhir.org/baseR4"
+      },
+      "page_size": {
+        "type": "String",
+        "defaultValue": "200"
+      },
+      "max_pages": {
+        "type": "String",
+        "defaultValue": "250"
+      }
+    },
+    "activities": [
+      {
+        "name": "Ingest_Patient",
+        "type": "TridentNotebook",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30
+        },
+        "typeProperties": {
+          "workspaceId": "<WORKSPACE_ID>",
+          "notebookId": "<INGEST_NOTEBOOK_ID>",
+          "parameters": {
+            "resource_type": {
+              "value": "Patient",
+              "type": "string"
+            },
+            "start_date": {
+              "value": {
+                "value": "@pipeline().parameters.start_date",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "end_date_exclusive": {
+              "value": {
+                "value": "@pipeline().parameters.end_date_exclusive",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "backfill_days": {
+              "value": {
+                "value": "@pipeline().parameters.backfill_days",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "api_base": {
+              "value": {
+                "value": "@pipeline().parameters.api_base",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "page_size": {
+              "value": {
+                "value": "@pipeline().parameters.page_size",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "max_pages": {
+              "value": {
+                "value": "@pipeline().parameters.max_pages",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "anchor_utc": {
+              "value": {
+                "value": "@pipeline().TriggerTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Ingest_Encounter",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Ingest_Patient",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30
+        },
+        "typeProperties": {
+          "workspaceId": "<WORKSPACE_ID>",
+          "notebookId": "<INGEST_NOTEBOOK_ID>",
+          "parameters": {
+            "resource_type": {
+              "value": "Encounter",
+              "type": "string"
+            },
+            "start_date": {
+              "value": {
+                "value": "@pipeline().parameters.start_date",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "end_date_exclusive": {
+              "value": {
+                "value": "@pipeline().parameters.end_date_exclusive",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "backfill_days": {
+              "value": {
+                "value": "@pipeline().parameters.backfill_days",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "api_base": {
+              "value": {
+                "value": "@pipeline().parameters.api_base",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "page_size": {
+              "value": {
+                "value": "@pipeline().parameters.page_size",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "max_pages": {
+              "value": {
+                "value": "@pipeline().parameters.max_pages",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "anchor_utc": {
+              "value": {
+                "value": "@pipeline().TriggerTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Ingest_Observation",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Ingest_Encounter",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30
+        },
+        "typeProperties": {
+          "workspaceId": "<WORKSPACE_ID>",
+          "notebookId": "<INGEST_NOTEBOOK_ID>",
+          "parameters": {
+            "resource_type": {
+              "value": "Observation",
+              "type": "string"
+            },
+            "start_date": {
+              "value": {
+                "value": "@pipeline().parameters.start_date",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "end_date_exclusive": {
+              "value": {
+                "value": "@pipeline().parameters.end_date_exclusive",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "backfill_days": {
+              "value": {
+                "value": "@pipeline().parameters.backfill_days",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "api_base": {
+              "value": {
+                "value": "@pipeline().parameters.api_base",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "page_size": {
+              "value": {
+                "value": "@pipeline().parameters.page_size",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "max_pages": {
+              "value": {
+                "value": "@pipeline().parameters.max_pages",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "anchor_utc": {
+              "value": {
+                "value": "@pipeline().TriggerTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Ingest_Condition",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Ingest_Observation",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30
+        },
+        "typeProperties": {
+          "workspaceId": "<WORKSPACE_ID>",
+          "notebookId": "<INGEST_NOTEBOOK_ID>",
+          "parameters": {
+            "resource_type": {
+              "value": "Condition",
+              "type": "string"
+            },
+            "start_date": {
+              "value": {
+                "value": "@pipeline().parameters.start_date",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "end_date_exclusive": {
+              "value": {
+                "value": "@pipeline().parameters.end_date_exclusive",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "backfill_days": {
+              "value": {
+                "value": "@pipeline().parameters.backfill_days",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "api_base": {
+              "value": {
+                "value": "@pipeline().parameters.api_base",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "page_size": {
+              "value": {
+                "value": "@pipeline().parameters.page_size",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "max_pages": {
+              "value": {
+                "value": "@pipeline().parameters.max_pages",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "anchor_utc": {
+              "value": {
+                "value": "@pipeline().TriggerTime",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Build_Silver_History",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Ingest_Condition",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30
+        },
+        "typeProperties": {
+          "workspaceId": "<WORKSPACE_ID>",
+          "notebookId": "<SILVER_NOTEBOOK_ID>",
+          "parameters": {
+            "api_base": {
+              "value": {
+                "value": "@pipeline().parameters.api_base",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Build_Gold_Snapshot",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Build_Silver_History",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30
+        },
+        "typeProperties": {
+          "workspaceId": "<WORKSPACE_ID>",
+          "notebookId": "<GOLD_NOTEBOOK_ID>",
+          "parameters": {}
+        }
+      }
+    ]
+  }
+}
