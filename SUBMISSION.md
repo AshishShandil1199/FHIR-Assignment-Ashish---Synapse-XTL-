@@ -1,6 +1,6 @@
-# FHIR Fabric assignment submission
+# Architecture and Validation
 
-## Deliverables
+## Project structure
 
 | Asset | Files | Purpose |
 | --- | --- | --- |
@@ -16,10 +16,10 @@
 | Historical evidence | [validation_counts.csv](validation_counts.csv) | Aggregate counts for the original two-day validation, not current totals |
 | Deployment guide | [README.md](README.md) | Capacity, Lakehouse, shortcut, notebook, pipeline and Dataflow setup |
 
-This is a portable local-source submission, not a byte-for-byte export of the
-current Fabric workspace. Notebook source is included without execution outputs.
-No patient records, raw responses, access tokens, credentials, virtual environment,
-editor configuration, or code-index database are included.
+The source definitions support deployment to another Fabric workspace. Workspace
+IDs, notebook IDs, Lakehouse bindings, and Dataflow connections must be configured
+for the target environment. Patient records, raw responses, credentials, and
+notebook execution outputs are not stored in the repository.
 
 ## Pipeline and data lineage
 
@@ -138,7 +138,7 @@ erDiagram
 - Snapshot counts and daily activity have different grains. Do not join the
   snapshot to clinical rows or sum it after a one-to-many join.
 
-## Power BI handoff
+## Power BI report
 
 - [Fabric workspace](https://app.fabric.microsoft.com/groups/b6659a9d-9437-4334-80d8-b2e649a22ab9/list?experience=fabric-developer)
 - [Saved one-page FHIR Gold Overview report](https://app.fabric.microsoft.com/groups/b6659a9d-9437-4334-80d8-b2e649a22ab9/reports/a6843707-cdfe-4edf-9d47-cf7bd9e7f12f/b646f14a64700705d319?experience=fabric-developer)
@@ -146,9 +146,8 @@ erDiagram
   `gold.fhir_resource_snapshot` only. It has no clinical-table relationships.
 
 The page contains categorized resource-count cards, a count-by-resource bar
-chart, a composition donut and a counts/freshness table. The corrected cards show
-separate entity counts; **81,374 is the total across all four types**, not the
-count of each type. The last browser-verified snapshot was:
+chart, a composition donut and a counts/freshness table. Cards show separate entity
+counts. The snapshot checked during report validation contained:
 
 | Resource | Current resources |
 | --- | ---: |
@@ -158,8 +157,8 @@ count of each type. The last browser-verified snapshot was:
 | Condition | 13,338 |
 | Total | 81,374 |
 
-These are observed report results, not hardcoded measures, and will change with
-the source. They are separate from the historical 7,180-event validation.
+These counts change when the source is refreshed. They are separate from the
+7,180-event integration validation window.
 
 Model measures:
 
@@ -172,13 +171,13 @@ Resource Count Display = FORMAT([Current Resources], "#,0")
 
 Use the text display measure only for exact-count cards categorized by
 `resource_type`; use the numeric measure for charts and aggregation. The duplicate
-Observed Versions column was removed from the report table.
+Observed Versions measure is available in the model but is not repeated in the
+report table.
 
-**Boundary:** this ZIP includes report links and reconstruction details, but no
-PBIX/PBIP report export or semantic-model definition export. Opening the live
-report requires workspace permission. The report is a resource overview, not a
-multi-table clinical analysis. The six portable SQL views are supplied separately;
-additional view names seen in the live workspace are not claimed as included.
+The report is a resource overview over the Gold snapshot, not a multi-table
+clinical analysis. Opening the live report requires workspace permission.
+PBIX/PBIP and semantic-model definition exports are not included. The six SQL
+reporting views are defined in [gold_views.sql](sql/gold_views.sql).
 
 ## Validation and reproducibility
 
@@ -206,27 +205,8 @@ Set `DELTA_JARS` to the required local Delta Spark and Delta storage JAR paths
 the deployed notebooks. The optional live mode requires external raw fixtures;
 they are intentionally not distributed.
 
-Packaging validation reruns the five offline tests, checks Python and notebook
-cell syntax, checks that generated assets match source, validates the pipeline
-chain and parameters, and verifies the ZIP content and checksums. This does not
-replace a fresh Fabric pipeline run or SQL endpoint validation after deployment.
-
-## GitHub submission
-
-Submission repository:
-[FHIR-Assignment-Ashish---Synapse-XTL-](https://github.com/AshishShandil1199/FHIR-Assignment-Ashish---Synapse-XTL-).
-Its source files contain the same portable implementation supplied in the ZIP,
-with the repository heading preserved and this handoff section updated.
-Repository visibility is not changed by the upload.
-
-To retrieve the submission:
-
-```powershell
-git clone https://github.com/AshishShandil1199/FHIR-Assignment-Ashish---Synapse-XTL-.git
-Set-Location FHIR-Assignment-Ashish---Synapse-XTL-
-python -m unittest discover -s tests -p "test_*.py" -v
-```
-
-For future updates, commit and push to the existing repository. Authenticate
-using GitHub's normal credential flow; never paste credentials into source files.
-Do not upload raw patient data, secrets, or local notebook outputs.
+Source checks cover the five offline tests, Python and notebook-cell syntax,
+generated-asset consistency, and pipeline activity order and parameter mappings.
+All five offline tests also passed against the published repository contents.
+Run the Fabric pipeline and SQL validation again after deployment to a new
+environment; local tests do not validate workspace permissions or connections.

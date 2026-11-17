@@ -1,13 +1,4 @@
-# FHIR-Assignment-Ashish---Synapse-XTL-
-
-FHIR API ingestion and analytics in Microsoft Fabric.
-
-## Submission guide
-
-See [SUBMISSION.md](SUBMISSION.md) for the deliverable inventory, pipeline flow,
-table grains and relationship diagram, local validation commands, Power BI
-scope, and GitHub upload instructions. The portable source package excludes
-credentials, patient records, local environments, and notebook execution outputs.
+# FHIR Data Pipeline on Microsoft Fabric
 
 The pipeline loads **Patient → Encounter → Observation → Condition**, then builds Silver history and a Gold resource snapshot. Bronze reads each landed JSON page as text through a OneLake Files shortcut. It uses basic PySpark steps to parse the Bundle, expand its entries, filter matching resources and select their fields. The ingestion notebook separates downloading, table setup, reading and loading into individual cells. Silver uses Spark SQL window functions for SCD Type 2 and PySpark for resource columns. Gold uses Spark SQL for reporting aggregates. The Bronze HTTP requests and raw-byte writes use Python, and a Spark UDF preserves the canonical JSON hashes needed by Silver. Pagination, validation, audit tables and duplicate prevention are retained. A Dataflow Gen2 transforms Bronze audit tables into daily ingestion coverage for reporting.
 
@@ -79,7 +70,7 @@ For a fresh deployment, create the folders `Files/fhir/raw` in the Lakehouse, th
 
 ## Verification
 
-The original validation used live HAPI R4 Bundle responses dated **11–12 November 2026 UTC** with Spark 3.5.3 and Delta Lake 3.2.1. These are historical validation results, not current workspace totals or a claim that the live integration was rerun during packaging. The ZIP contains code and aggregate verification counts, with no source records. See [validation_counts.csv](validation_counts.csv).
+Integration validation used live HAPI R4 Bundle responses dated **11–12 November 2026 UTC** with Spark 3.5.3 and Delta Lake 3.2.1. The counts below describe that validation window, not current workspace totals. See [validation_counts.csv](validation_counts.csv). Source records and notebook execution outputs are excluded from the repository.
 
 | Resource | Pages | Returned entries | Bronze events | Silver versions |
 | --- | ---: | ---: | ---: | ---: |
@@ -94,6 +85,9 @@ The original checks verified exact Raw bytes, pagination, duplicate replay, late
 The previously validated live pipeline used one parameterized Bronze notebook activity to ingest the four resources in order, followed by Silver, Gold and the Dataflow refresh. The portable pipeline definition uses four separate ingestion activities, one per resource. The live Bronze activity was configured with the two verification dates; inspect its current configuration before running. To run a different window, change the two date parameters together. Set both to blank to use the notebook's rolling two-day window.
 
 ### References
+
+See [technical documentation](SUBMISSION.md) for the lineage diagram, table grains,
+relationship diagram, test commands, and Power BI report scope.
 
 - [FHIR R4 search](https://hl7.org/fhir/R4/search.html)
 - [Fabric Lakehouse schemas](https://learn.microsoft.com/en-us/fabric/data-engineering/lakehouse-schemas)
